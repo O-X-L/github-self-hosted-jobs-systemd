@@ -1,0 +1,19 @@
+[Unit]
+Description=Service to run CI-API
+
+[Service]
+Type=simple
+User=ci_api
+Group=ci_api
+ExecStart=/usr/bin/python3 /usr/local/bin/ci_api.py
+
+# with venv
+# ExecStart=/bin/bash -c 'python3 -m virtualenv /tmp/ci-api && \
+#                         source /tmp/ci-api/bin/activate && \
+#                         python3 -m pip install --upgrade -r /usr/local/bin/ci_api.requirements.txt && \
+#                         python3 /usr/local/bin/ci_api.py'
+
+WorkingDirectory=/tmp
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=cicd_api
