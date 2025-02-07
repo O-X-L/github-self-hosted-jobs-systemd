@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-from re import sub as regex_replace
 from time import time
 from pathlib import Path
 from threading import Lock
 from hashlib import sha256
+from re import sub as regex_replace
+from re import match as regex_match
 
 from flask import Flask, request, Response, json
 from waitress import serve
@@ -16,12 +17,13 @@ TOKEN_HASH_RO = '63e34ec7d0aabaea017f7e0114268d452df41f20f8a92d86f3f4d8438149eac
 JOB_CONTAINS = 'test'
 JOB_PREFIX = ''
 LOGS_STRIP_REGEX = []
+LOGS_SKIP_REGEX = []
 
 app = Flask('ci-api')
 JOB_REGEX = r'[^a-zA-Z0-9_\-]'
 PATH_TAIL_CACHE = Path(f'/tmp/ci-api-{int(time())}')
 SCTL_FLAGS = '--no-pager --full'
-JCTL_FLAGS = f'--no-hostname {SCTL_FLAGS}'
+JCTL_FLAGS = f'--no-hostname -q {SCTL_FLAGS}'
 
 tail_lock = Lock()
 
@@ -86,18 +88,30 @@ def _get_job_logs(cmd: str) -> list[str]:
     return logs.split('\n')
 
 
-def _strip_logs(logs: list[str]) -> list[str]:
+def _clean_logs(logs: list[str]) -> list[str]:
     if len(LOGS_STRIP_REGEX) == 0:
         return logs
 
-    for i, l in enumerate(logs):
+    logs_cleaned = []
+
+    for l in logs:
+        o = False
+        for r in LOGS_SKIP_REGEX:
+            if regex_match(r, l) is not None:
+                o = True
+                break
+
+        if o:
+            continue
+
         s = l
+
         for r in LOGS_STRIP_REGEX:
             s = regex_replace(r, '', s)
 
-        logs[i] = s
+        logs_cleaned.append(s)
 
-    return logs
+    return logs_cleaned
 
 
 @app.route('/api/job/<job>', methods=['POST'])
@@ -165,7 +179,8 @@ def api_tail_job_logs(job: str) -> Response:
             with open(cache_file, 'w', encoding='utf-8') as f:
                 f.write(logs[-1])
 
-    logs = _strip_logs(logs)
+    logs = _clean_logs(logs)
+    logs.reverse()
     return _response_json(code=200, data={'logs': logs})
 
 
@@ -178,9 +193,24 @@ def api_get_job_logs(job: str) -> Response:
     if not valid:
         return _response_json(code=400, data={'msg': 'Invalid job'})
 
+    l = 1000
+    force_limit = False
+    if 'lines' in request.args and request.args['lines'].isdigit():
+        l = min(int(request.args['lines']), 20_000)
+        force_limit = True
+
     last_run = _get_last_job_exec_id(job)
-    logs = _get_job_logs(f"sudo journalctl {last_run} -n 1000 {JCTL_FLAGS}")
-    logs = _strip_logs(logs)
+    if last_run == '':
+        selector = f'-n {l}'
+
+    else:
+        selector = last_run
+        if force_limit:
+            selector += f' -n {l}'
+
+    logs = _get_job_logs(f"sudo journalctl {selector} {JCTL_FLAGS}")
+    logs = _clean_logs(logs)
+    logs.reverse()
     return _response_json(code=200, data={'logs': logs})
 
 
@@ -191,7 +221,7 @@ def catch_base():
         data={
             'POST /api/job/<JOB>': 'Start a job',
             'GET /api/job/<JOB>/state': 'Get the current job-state',
-            'GET /api/job/<JOB>/logs': 'Get job-logs',
+            'GET /api/job/<JOB>/logs': 'Get job-logs. Optional parameters: lines (line count)',
             'GET /api/job/<JOB>/tail': 'Get the last lines of job-logs',
         },
     )

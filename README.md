@@ -19,6 +19,9 @@ curl -v "http://localhost:8000/api/job/${API_JOB}/tail?token=${API_TOKEN}"
 
 # get full job logs of last run
 curl -v "http://localhost:8000/api/job/${API_JOB}/logs?token=${API_TOKEN}"
+
+# limit the max lines of logs
+curl -v "http://localhost:8000/api/job/${API_JOB}/logs?token=${API_TOKEN}&lines=50"
 ```
 
 ----
