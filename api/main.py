@@ -35,10 +35,10 @@ def _response_json(code: int, data: dict) -> Response:
 
 
 def _is_permitted(write: bool) -> bool:
-    if 'SECRET' not in request.headers:
+    if 'token' not in request.headers:
         return False
 
-    sh = sha256(request.headers['SECRET'].encode('utf-8')).hexdigest()
+    sh = sha256(request.headers['token'].encode('utf-8')).hexdigest()
     if write:
         return sh == TOKEN_HASH_RW
 

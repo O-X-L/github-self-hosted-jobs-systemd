@@ -3,22 +3,22 @@
 ## Usage
 
 ```bash
-API_SECRET='<YOUR-SECRET-HERE>'
-# API_SECRET='e072f27f-4904-4ea8-878f-c0959b115263'
-# API_SECRET_RO='7a8a6ada-6764-4560-83c2-5e40773d2e07'
+API_TOKEN='<YOUR-TOKEN-HERE>'
+# API_TOKEN='e072f27f-4904-4ea8-878f-c0959b115263'
+# API_TOKEN_RO='7a8a6ada-6764-4560-83c2-5e40773d2e07'
 API_JOB='<YOUR-JOB-HERE>'
 
 # start a job:
-curl -v -H "SECRET: ${API_SECRET}" -XPOST "http://localhost:8000/api/job/${API_JOB}"
+curl -v -H "token: ${API_TOKEN}" -XPOST "http://localhost:8000/api/job/${API_JOB}"
 
 # get job state
-curl -v -H "SECRET: ${API_SECRET}" "http://localhost:8000/api/job/${API_JOB}/state"
+curl -v -H "token: ${API_TOKEN}" "http://localhost:8000/api/job/${API_JOB}/state"
 
 # tail job logs
-curl -v -H "SECRET: ${API_SECRET}" "http://localhost:8000/api/job/${API_JOB}/tail"
+curl -v -H "token: ${API_TOKEN}" "http://localhost:8000/api/job/${API_JOB}/tail"
 
 # get full job logs of last run
-curl -v -H "SECRET: ${API_SECRET}" "http://localhost:8000/api/job/${API_JOB}/logs"
+curl -v -H "token: ${API_TOKEN}" "http://localhost:8000/api/job/${API_JOB}/logs"
 ```
 
 ----
