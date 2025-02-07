@@ -9,16 +9,16 @@ API_TOKEN='<YOUR-TOKEN-HERE>'
 API_JOB='<YOUR-JOB-HERE>'
 
 # start a job:
-curl -v -H "token: ${API_TOKEN}" -XPOST "http://localhost:8000/api/job/${API_JOB}"
+curl -v -XPOST "http://localhost:8000/api/job/${API_JOB}?token=${API_TOKEN}"
 
 # get job state
-curl -v -H "token: ${API_TOKEN}" "http://localhost:8000/api/job/${API_JOB}/state"
+curl -v "http://localhost:8000/api/job/${API_JOB}/state?token=${API_TOKEN}"
 
 # tail job logs
-curl -v -H "token: ${API_TOKEN}" "http://localhost:8000/api/job/${API_JOB}/tail"
+curl -v "http://localhost:8000/api/job/${API_JOB}/tail?token=${API_TOKEN}"
 
 # get full job logs of last run
-curl -v -H "token: ${API_TOKEN}" "http://localhost:8000/api/job/${API_JOB}/logs"
+curl -v "http://localhost:8000/api/job/${API_JOB}/logs?token=${API_TOKEN}"
 ```
 
 ----
