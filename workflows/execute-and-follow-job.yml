@@ -13,6 +13,9 @@ jobs:
   job:
     runs-on: ubuntu-latest
     timeout-minutes: 5  # important!
+    env:
+      CI_DOMAIN: '<YOUR-DOMAIN>'
+      CI_JOB: '<YOUR-JOB-NAME>'
 
     steps:
       - name: Checkout
@@ -28,7 +31,7 @@ jobs:
         run: bash execute-and-follow-job.sh
         shell: bash
         env:
-          CI_API_URL: "https://<YOUR-HOSTNAME>/api/job/<YOUR-JOB>"
+          CI_API_URL: "https://${{ env.CI_DOMAIN }}/api/job/${{ env.CI_JOB }}"
           CI_TOKEN: "${{ secrets.CI_TOKEN_RW }}"
           LOG_FILE: '/tmp/job.log'
 

@@ -13,6 +13,10 @@ jobs:
   job:
     runs-on: ubuntu-latest
     timeout-minutes: 1
+    env:
+      CI_DOMAIN: '<YOUR-DOMAIN>'
+      CI_JOB: '<YOUR-JOB-NAME>'
+      CI_TOKEN_RO: '<YOUR-READ-ONLY-TOKEN-HERE>'
 
     steps:
       - name: Checkout
@@ -25,12 +29,10 @@ jobs:
         shell: bash
 
       - name: Starting Job
-        run: curl -XPOST https://<YOUR-HOSTNAME>/api/job/<YOUR-JOB>?token=${{ secrets.CI_TOKEN_RW }} 2>/dev/null
+        run: curl -XPOST https://${{ env.CI_DOMAIN }}/api/job/${{ env.CI_JOB }}?token=${{ secrets.CI_TOKEN_RW }} 2>/dev/null
         shell: bash
 
       - name: You can pull the current logs at this URL
         run: >
           echo "You can pull the current logs at this URL:"
-          echo " > https://<YOUR-HOSTNAME>/api/job/<YOUR-JOB>/tail?token=${CI_TOKEN_RO}"
-        env:
-          CI_TOKEN_RO: "<YOUR-TOKEN-HERE>"
+          echo " > https://${{ env.CI_DOMAIN }}/api/job/${{ env.CI_JOB }}/tail?token=${{ env.CI_TOKEN_RO }}"

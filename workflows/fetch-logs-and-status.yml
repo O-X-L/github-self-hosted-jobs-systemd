@@ -11,6 +11,9 @@ jobs:
   job:
     runs-on: ubuntu-latest
     timeout-minutes: 1
+    env:
+      CI_DOMAIN: '<YOUR-DOMAIN>'
+      CI_JOB: '<YOUR-JOB-NAME>'
 
     steps:
       - name: Checkout
@@ -23,7 +26,7 @@ jobs:
         shell: bash
 
       - name: Pulling logs
-        run: curl https://<YOUR-HOSTNAME>/api/job/<YOUR-JOB>/logs?token=${{ secrets.CI_TOKEN_RW }} 2>/dev/null | jq > /tmp/job.log
+        run: curl https://${{ env.CI_DOMAIN }}/api/job/${{ env.CI_JOB }}/logs?token=${{ secrets.CI_TOKEN_RW }} 2>/dev/null | jq > /tmp/job.log
         shell: bash
 
       - uses: actions/upload-artifact@v4
@@ -33,5 +36,5 @@ jobs:
           retention-days: 14
 
       - name: Checking job-state
-        run: curl https://<YOUR-HOSTNAME>/api/job/<YOUR-JOB>/state?token=${{ secrets.CI_TOKEN_RW }} 2>/dev/null | jq -r '.state' | grep -q 'failed' && exit 1 || exit 0
+        run: curl https://${{ env.CI_DOMAIN }}/api/job/${{ env.CI_JOB }}/state?token=${{ secrets.CI_TOKEN_RW }} 2>/dev/null | jq -r '.state' | grep -q 'failed' && exit 1 || exit 0
         shell: bash
