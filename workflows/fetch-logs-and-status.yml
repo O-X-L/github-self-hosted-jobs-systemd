@@ -1,0 +1,37 @@
+---
+
+name: Job Status
+
+on:
+  schedule:
+    - cron: "25 6 * * *"
+  workflow_dispatch:  # run manually
+
+jobs:
+  job:
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Install dependencies
+        run: sudo apt install curl jq
+        shell: bash
+
+      - name: Pulling logs
+        run: curl https://<YOUR-HOSTNAME>/api/job/<YOUR-JOB>/logs?token=${{ secrets.CI_TOKEN_RO }} | jq > /tmp/job.log
+        shell: bash
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: job-logs
+          path: /tmp/job.log
+          retention-days: 14
+
+      - name: Checking job-state
+        run: curl https://<YOUR-HOSTNAME>/api/job/<YOUR-JOB>/state?token=${{ secrets.CI_TOKEN_RO }} | jq -r '.state' | grep -q 'failed' && exit 1 || exit 0
+        shell: bash

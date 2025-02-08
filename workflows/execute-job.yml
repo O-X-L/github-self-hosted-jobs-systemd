@@ -1,0 +1,31 @@
+---
+
+name: Job Execution
+
+on: workflow_dispatch  # run manually
+
+jobs:
+  job:
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Install dependencies
+        run: sudo apt install curl
+        shell: bash
+
+      - name: Starting Tests
+        run: curl -XPOST https://<YOUR-HOSTNAME>/api/job/<YOUR-JOB>?token=${{ secrets.CI_TOKEN_RW }}
+        shell: bash
+
+      - name: You can pull the current logs at this URL
+        run: >
+          echo "You can pull the current logs at this URL:"
+          echo " > https://<YOUR-HOSTNAME>/api/job/<YOUR-JOB>/tail?token=${CI_TOKEN_RO}"
+        env:
+          CI_TOKEN_RO: "<YOUR-TOKEN-HERE>"
