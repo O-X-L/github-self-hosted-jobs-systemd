@@ -20,7 +20,7 @@ LOGS_STRIP_REGEX = []
 LOGS_SKIP_REGEX = []
 
 app = Flask('ci-api')
-JOB_REGEX = r'[^a-zA-Z0-9_\-]'
+JOB_REGEX = r'[^a-zA-Z0-9_\-@]'
 PATH_TAIL_CACHE = Path(f'/tmp/ci-api-{int(time())}')
 SCTL_FLAGS = '--no-pager --full'
 JCTL_FLAGS = f'--no-hostname -q {SCTL_FLAGS}'
@@ -89,7 +89,7 @@ def _get_job_logs(cmd: str) -> list[str]:
 
 
 def _clean_logs(logs: list[str]) -> list[str]:
-    if len(LOGS_STRIP_REGEX) == 0:
+    if len(LOGS_STRIP_REGEX) == 0 and len(LOGS_SKIP_REGEX) == 0:
         return logs
 
     logs_cleaned = []

@@ -1,16 +1,18 @@
 ---
 
-name: Job Status
+name: Job Execution with Follow
 
 on:
-  schedule:
-    - cron: "25 6 * * *"
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:  # run manually
 
 jobs:
   job:
     runs-on: ubuntu-latest
-    timeout-minutes: 1
+    timeout-minutes: 5  # important!
 
     steps:
       - name: Checkout
@@ -22,16 +24,16 @@ jobs:
         run: sudo apt install curl jq
         shell: bash
 
-      - name: Pulling logs
-        run: curl https://<YOUR-HOSTNAME>/api/job/<YOUR-JOB>/logs?token=${{ secrets.CI_TOKEN_RW }} 2>/dev/null | jq > /tmp/job.log
+      - name: Starting and Following Job until it finished
+        run: bash execute-and-follow-job.sh
         shell: bash
+        env:
+          CI_API_URL: "https://<YOUR-HOSTNAME>/api/job/<YOUR-JOB>"
+          CI_TOKEN: "${{ secrets.CI_TOKEN_RW }}"
+          LOG_FILE: '/tmp/job.log'
 
       - uses: actions/upload-artifact@v4
         with:
           name: job-logs
           path: /tmp/job.log
           retention-days: 14
-
-      - name: Checking job-state
-        run: curl https://<YOUR-HOSTNAME>/api/job/<YOUR-JOB>/state?token=${{ secrets.CI_TOKEN_RW }} 2>/dev/null | jq -r '.state' | grep -q 'failed' && exit 1 || exit 0
-        shell: bash
