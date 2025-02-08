@@ -26,7 +26,7 @@ jobs:
         shell: bash
 
       - name: Pulling logs
-        run: curl https://${{ env.CI_DOMAIN }}/api/job/${{ env.CI_JOB }}/logs?token=${{ secrets.CI_TOKEN_RW }} 2>/dev/null | jq > /tmp/job.log
+        run: curl -f https://${{ env.CI_DOMAIN }}/api/job/${{ env.CI_JOB }}/logs?token=${{ secrets.CI_TOKEN_RW }} 2>/dev/null | jq > /tmp/job.log
         shell: bash
 
       - uses: actions/upload-artifact@v4
@@ -36,5 +36,5 @@ jobs:
           retention-days: 14
 
       - name: Checking job-state
-        run: curl https://${{ env.CI_DOMAIN }}/api/job/${{ env.CI_JOB }}/state?token=${{ secrets.CI_TOKEN_RW }} 2>/dev/null | jq -r '.state' | grep -q 'failed' && exit 1 || exit 0
+        run: curl -f https://${{ env.CI_DOMAIN }}/api/job/${{ env.CI_JOB }}/state?token=${{ secrets.CI_TOKEN_RW }} 2>/dev/null | jq -r '.state' | grep -q 'failed' && exit 1 || exit 0
         shell: bash

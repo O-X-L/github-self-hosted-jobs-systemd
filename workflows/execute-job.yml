@@ -29,7 +29,7 @@ jobs:
         shell: bash
 
       - name: Starting Job
-        run: curl -XPOST https://${{ env.CI_DOMAIN }}/api/job/${{ env.CI_JOB }}?token=${{ secrets.CI_TOKEN_RW }} 2>/dev/null
+        run: curl -f -XPOST https://${{ env.CI_DOMAIN }}/api/job/${{ env.CI_JOB }}?token=${{ secrets.CI_TOKEN_RW }} 2>/dev/null
         shell: bash
 
       - name: You can pull the current logs at this URL

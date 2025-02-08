@@ -15,7 +15,7 @@ test jq
 test curl
 
 echo 'Starting job'
-curl -XPOST "${CI_API_URL}?token=${CI_TOKEN}" 2>/dev/null
+curl -f -XPOST "${CI_API_URL}?token=${CI_TOKEN}" 2>/dev/null
 
 echo 'Following job output'
 echo "$SEP"
@@ -24,8 +24,8 @@ echo ''
 while true
 do
   sleep $FETCH_INTERVAL_SEC
-  curl "${CI_API_URL}/tail?token=${CI_TOKEN}" 2>/dev/null | jq -r '.logs' | tee -a "$LOG_FILE"
-  STATE="$(curl "${CI_API_URL}/state?token=${CI_TOKEN}" 2>/dev/null | jq -r '.state')"
+  curl -f "${CI_API_URL}/tail?token=${CI_TOKEN}" 2>/dev/null | jq -r '.logs' | tee -a "$LOG_FILE"
+  STATE="$(curl -f "${CI_API_URL}/state?token=${CI_TOKEN}" 2>/dev/null | jq -r '.state')"
 
   if ! echo "$STATE" | grep -Eq 'running|activating|active'
   then
