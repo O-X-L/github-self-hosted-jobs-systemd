@@ -58,6 +58,13 @@ These services should run as an unprivileged service-user!
 
 You could also utilize systemd-instances to run multiple instances of one service at a time and also pass a runtime-variable to that service. Example: `ci-test-<JOB>@<COMMIT/BRANCH>`
 
+Don't forget to enable the service after installing it:
+
+```bash
+# add service file: /etc/systemd/system/ci-api.service
+systemctl enable ci-api.service
+```
+
 ### API
 
 Sudoers-Privileges

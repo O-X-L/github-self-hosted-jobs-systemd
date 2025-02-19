@@ -17,3 +17,6 @@ WorkingDirectory=/tmp
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=cicd_api
+
+[Install]
+WantedBy=multi-user.target
